@@ -32,7 +32,7 @@ pattern_variable_mapping = {
 }
 
 #TODO handle the stm32l4 subfolder more generically
-make_database = subprocess.run(['make', '-nprR', '--directory=stmcubemx/stm32l476rgtx'], capture_output=True)
+make_database = subprocess.run(['make', '-nprR', '--directory=stmcubemx'], capture_output=True)
 
 for line in make_database.stdout.decode().splitlines():
     for pattern, variable in pattern_variable_mapping.items():
@@ -42,14 +42,14 @@ for line in make_database.stdout.decode().splitlines():
             if pattern == 'C_SOURCES':
                 for part in parts:
                     if path.isabs(part):
-                        variable.append(path.relpath(part, start='/workspaces/stm32CubeL4'))
+                        variable.append(path.join('..', path.relpath(part)))
                     else:
                         variable.append(part)
             elif pattern == 'C_INCLUDES':
                 for part in parts:
                     part = part.removeprefix('-I')
                     if path.isabs(part):
-                        variable.append(path.relpath(part, start='/workspaces/stm32CubeL4'))
+                        variable.append(path.join('..', path.relpath(part)))
                     else:
                         variable.append(part)
             else:
@@ -59,17 +59,17 @@ for line in make_database.stdout.decode().splitlines():
 with open(path.join('stmcubemx', 'meson.build'), 'w', encoding='utf-8') as f:
     f.write('# Auto Generated File\n\n')
 
-    f.write('incs += [include_directories(')
+    f.write('stm_incs = [include_directories(')
     for c_include in c_includes_subproject:
         f.write(f"'{c_include}',\n")
     f.write(')]\n\n')
 
-    f.write('srcs += files(')
+    f.write('stm_srcs = files(')
     for c_source in c_sources_subproject:
         f.write(f"'{c_source}',\n")
     f.write(')\n\n')
 
-    f.write(f"srcs += files('{asm_source[0]}')\n\n")
+    f.write(f"stm_srcs += files('{asm_source[0]}')\n\n")
 
 # Generate cross compile file for specific target
 with open(path.join('stmcubemx', target[0] + '.ini'), 'w', encoding='utf-8') as f:
