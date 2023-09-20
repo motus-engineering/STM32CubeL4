@@ -1,0 +1,8 @@
+Inc/
+Src/
+.mxproject
+Makefile
+meson.build
+startup_*.s
+*_FLASH.ld
+stm*.ini
