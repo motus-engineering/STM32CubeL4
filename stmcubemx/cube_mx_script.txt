@@ -1,3 +1,0 @@
-config load /workspaces/STM32CubeL4/stmcubemx/stm32l476rgtx.ioc
-project generate
-exit

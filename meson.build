@@ -8,7 +8,7 @@ project('stm32l4', 'c', 'cpp',
 # Build CubeMX script
 message('Generating STM32CubeMX files.')
 cube_mx_script_file = meson.project_source_root() / 'stmcubemx/cube_mx_script.txt'
-ioc_file = meson.project_source_root() / 'stmcubemx/stm32l476rgtx.ioc'
+ioc_file = meson.project_source_root() / 'stmcubemx/stmcubemx.ioc'
 script_gen = run_command('python3',
   meson.project_source_root() / 'stmcubemx/cube_mx_script_gen.py',
   cube_mx_script_file,
