@@ -71,6 +71,10 @@ with open(path.join('stmcubemx', 'meson.build'), 'w', encoding='utf-8') as f:
 
     f.write(f"stm_srcs += files('{asm_source[0]}')\n\n")
 
+    f.write("libstm = static_library('stm', stm_srcs, include_directories : stm_incs)\n\n")
+
+    f.write("libstm_dep = declare_dependency(include_directories : stm_incs, link_with : libstm)\n")
+
 # Generate cross compile file for specific target
 with open(path.join('stmcubemx', target[0] + '.ini'), 'w', encoding='utf-8') as f:
     preamble = '''# Auto Generated File
@@ -99,7 +103,7 @@ with open(path.join('stmcubemx', target[0] + '.ini'), 'w', encoding='utf-8') as 
     f.write("  '-mthumb']\n\n")
 
     f.write('[properties]\n')
-    f.write(f"ld_path = 'stmcubemx/{target[0]}'\n")
+    f.write(f"ld_path = '{path.dirname(path.realpath(ldscript[0]))}/stmcubemx'\n")
     f.write(f"ld_filename = '{ldscript[0]}'\n")
     f.write('\n')
 
