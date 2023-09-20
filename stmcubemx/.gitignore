@@ -1,6 +1,7 @@
 Inc/
 Src/
 .mxproject
+cube_mx_script.txt
 Makefile
 meson.build
 startup_*.s
