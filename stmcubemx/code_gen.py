@@ -31,9 +31,10 @@ pattern_variable_mapping = {
     'FLOAT-ABI': float_abi,
 }
 
-#TODO handle the stm32l4 subfolder more generically
+# Obtain the make database which is easier to parse for the needed parameters
 make_database = subprocess.run(['make', '-nprR', '--directory=stmcubemx'], capture_output=True)
 
+# Parse the database
 for line in make_database.stdout.decode().splitlines():
     for pattern, variable in pattern_variable_mapping.items():
         m = re.match(pattern, line)
@@ -55,7 +56,7 @@ for line in make_database.stdout.decode().splitlines():
             else:
                 variable.extend([part for part in parts])
 
-# Generate meson.build file for Auto Generated Code App code
+# Generate meson.build file for the CubeMX auto generated code
 with open(path.join('stmcubemx', 'meson.build'), 'w', encoding='utf-8') as f:
     f.write('# Auto Generated File\n\n')
 
@@ -73,22 +74,9 @@ with open(path.join('stmcubemx', 'meson.build'), 'w', encoding='utf-8') as f:
 
     f.write("libstm = static_library('stm', stm_srcs, include_directories : stm_incs)\n\n")
 
-    f.write("libstm_dep = declare_dependency(include_directories : stm_incs, link_with : libstm)\n")
+    f.write("libstm_dep = declare_dependency(include_directories : stm_incs, link_with : libstm)\n\n")
 
-# Generate cross compile file for specific target
-with open(path.join('stmcubemx', target[0] + '.ini'), 'w', encoding='utf-8') as f:
-    preamble = '''# Auto Generated File
-
-# Meson Cross-compilation File
-# This file should be layered after arm.ini
-# Requires that arm-none-eabi-* is found in your PATH
-# For more information: http://mesonbuild.com/Cross-compilation.html
-
-'''
-    f.write(preamble)
-
-    f.write('[built-in options]\n')
-    f.write("c_args = [\n")
+    f.write("stm_c_args = [\n")
     for c_def in c_defs:
         f.write(f"  '{c_def}',\n")
     f.write(f"  '{cpu[0]}',\n")
@@ -96,17 +84,14 @@ with open(path.join('stmcubemx', target[0] + '.ini'), 'w', encoding='utf-8') as 
     f.write("  '-mabi=aapcs',\n")
     f.write("  '-mthumb']\n\n")
 
-    f.write("c_link_args = [\n")
+    f.write("stm_c_link_args = [\n")
     f.write(f"  '{cpu[0]}',\n")
     f.write(f"  '{float_abi[0]}',\n")
     f.write("  '-mabi=aapcs',\n")
     f.write("  '-mthumb']\n\n")
 
-    f.write('[properties]\n')
     f.write(f"ld_path = '{path.dirname(path.realpath(ldscript[0]))}/stmcubemx'\n")
     f.write(f"ld_filename = '{ldscript[0]}'\n")
     f.write('\n')
 
-    f.write('[host_machine]\n')
     f.write(f"cpu = '{cpu[0].split('=')[1]}'\n")
-    f.write('\n')
