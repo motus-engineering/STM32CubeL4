@@ -72,10 +72,6 @@ with open(path.join('stmcubemx', 'meson.build'), 'w', encoding='utf-8') as f:
 
     f.write(f"stm_srcs += files('{asm_source[0]}')\n\n")
 
-    f.write("libstm = static_library('stm', stm_srcs, include_directories : stm_incs)\n\n")
-
-    f.write("libstm_dep = declare_dependency(include_directories : stm_incs, link_with : libstm)\n\n")
-
     f.write("stm_c_args = [\n")
     for c_def in c_defs:
         f.write(f"  '{c_def}',\n")
@@ -94,4 +90,8 @@ with open(path.join('stmcubemx', 'meson.build'), 'w', encoding='utf-8') as f:
     f.write(f"ld_filename = '{ldscript[0]}'\n")
     f.write('\n')
 
-    f.write(f"cpu = '{cpu[0].split('=')[1]}'\n")
+    f.write(f"cpu = '{cpu[0].split('=')[1]}'\n\n")
+
+    f.write("libstm = static_library('stm', stm_srcs, include_directories : stm_incs, c_args: stm_c_args, link_args: stm_c_link_args)\n\n")
+
+    f.write("libstm_dep = declare_dependency(include_directories : stm_incs, link_with : libstm)\n\n")
